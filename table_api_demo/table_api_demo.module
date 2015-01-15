@@ -62,7 +62,7 @@ function table_api_demo_form($form, &$form_state){
     $data['order'] = 'id'; //Default sort column
     $data['page'] = 0; //Default start page
     //optional fields
-    $data['delete'] = 'id'; //enables deletion with dfid as delete condition
+    $data['delete'] = 'id'; //enables deletion with id as delete condition
     $data['editable'] = array('field1', 'field2'); //enables editing following fields
     $data['update_cond'] = 'id'; //update condition field (required when updating is enabled)
     $data['insert'] = true; //enable insertion of new rows
