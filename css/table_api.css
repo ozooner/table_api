@@ -1,0 +1,33 @@
+a.tapi-delete{
+  background: url(../img/delete.png) no-repeat;
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+a.tapi-save{
+  background: url(../img/save.png) no-repeat;
+  position: absolute;
+  margin-left: -20px;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+}
+a.tapi-insert-btn{
+  background: url(../img/save.png) no-repeat;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+}
+.tapi-edit{
+  background: url(../img/edit.png) no-repeat;
+  float: right;
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+}
+.tapi-edit-input{
+  margin-right: 26px;
+}
+.tapi-hidden{
+  opacity: 0;
+}

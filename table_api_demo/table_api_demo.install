@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * Implements hook_enable()
+ */
+function table_api_demo_enable(){
+    db_query(
+         "CREATE TABLE IF NOT EXISTS `tapi_demo` (
+         `id` INT NOT NULL AUTO_INCREMENT ,
+         `field1` TEXT NOT NULL , 
+         `field2` INT NULL DEFAULT NULL , 
+         `field3` TINYINT(1) NOT NULL DEFAULT '0' , 
+         PRIMARY KEY (`id`) ) 
+         ENGINE = InnoDB;"
+    );
+    table_api_demo_sample_data();
+}
+
+/**
+ * Implements hook_disable()
+ */
+function table_api_demo_disable(){
+    db_drop_table('tapi_demo');
+}

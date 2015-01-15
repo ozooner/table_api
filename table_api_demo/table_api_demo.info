@@ -1,0 +1,8 @@
+name = Table API Demo
+description = Example of Table API usage
+core = 7.x
+package = Content Display
+
+dependencies[] = table_api
+
+stylesheets[all][] = css/table_api.css

@@ -1,0 +1,10 @@
+name = Table API
+description = Allows viewing and editing DB table data
+core = 7.x
+package = Content Display
+
+dependencies[] = jquery_update
+configure = admin/config/table_api
+
+scripts[] = js/jquery.url.js
+scripts[] = js/table_api.js

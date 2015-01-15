@@ -1,0 +1,228 @@
+<?php
+/**
+ * Implements hook_help()
+ */
+function table_api_help($path, $arg){
+    if($path == 'admin/config/table_api'){
+        $help = 'Table API enables developers to easily expose underlaying database tables. ';
+        $help .= 'By passing drupal-style db_query to table api renderer function, it will generate ';
+        $help .= 'html code for pageable/sortable table. In addition it enables editing/deleting/inserting ';
+        $help .= 'data in the table. Table API also supports complex join queries, however Create, Update, Delete functionality ';
+        $help .= 'is not available for queries spanning over multiple tables. Requires jQuery 1.7+ to work due to "on" bindings.';
+        $help .= '<br/><b>See demo at ' . l('tapi/demo', 'tapi/demo') . '</b>';
+        return t($help);
+    }
+}
+/**
+ * Implements hook_permission().
+ */
+function table_api_permission() {
+    return array(
+        'tapi view' => array(
+            'title' => t('Enables viewing data in Table API tables (protects AJAX callback)'),
+        ),
+        'tapi delete' => array(
+            'title' => t('Enables deleting data in Table API tables'),
+        ),
+        'insert tapi' => array(
+            'title' => t('Enables inserting to exposed Table API tables'),
+        ),
+        'update tapi' => array(
+            'title' => t('Enables updating data in exposed Table API tables'),
+        )
+    );
+}
+
+/**
+ * Implements hook_menu()
+ */
+function table_api_menu() {
+    $items = array(
+        /** Menu item */
+        'admin/config/table_api' =>    array(
+            'title'              =>    'Table API info',
+            'page callback'      =>    'table_api_config',
+            'access arguments'   =>    array('administer modules'),
+            'type'               =>    MENU_CALLBACK,
+        ),
+        'tapi'                   =>    array(
+            'title'              =>    'Table API',
+            'page callback'      =>    'table_api_callback',
+            'access arguments'   =>    array('tapi view'),
+            'file'               =>    'tapi.inc',
+            'type'               =>    MENU_CALLBACK,
+        ),
+
+        'tapi/delete'            =>    array(
+            'title'              =>    'Table API delete callback',
+            'page callback'      =>    'table_api_delete',
+            'access arguments'   =>    array('tapi delete'),
+            'file'               =>    'tapi.inc',
+            'type'               =>    MENU_CALLBACK,
+        ),
+
+        'tapi/update'            =>    array(
+            'title'              =>    'Table API update callback',
+            'page callback'      =>    'table_api_update',
+            'access arguments'   =>    array('tapi update'),
+            'file'               =>    'tapi.inc',
+            'type'               =>    MENU_CALLBACK,
+        ),
+
+        'tapi/insert'            =>    array(
+            'title'              =>    'Table API insert callback',
+            'page callback'      =>    'table_api_insert',
+            'access arguments'   =>    array('tapi insert'),
+            'file'               =>    'tapi.inc',
+            'type'               =>    MENU_CALLBACK,
+        ),
+    );
+    return $items;
+}
+
+/**
+ * Ajax table callback. All links in the table and form are intercepted by jQuery and
+ * a request to here is made instead
+ * @return new table HTML based on sorting/filtering parameters
+ */
+function table_api_render($data = null){
+    $module_path = drupal_get_path('module', 'table_api');
+    drupal_add_css($module_path . '/css/table_api.css');
+
+    if($data != null){
+        //Store the query in a cache instad and keep the reference to cid
+        $query = $data['query'];
+        $uuid = md5($query->__toString());
+        $data['conditions'] = array();
+        $data['query_uuid'] = $uuid;
+        cache_set($uuid, $data);
+    }
+    else{
+        $client_data = drupal_json_decode($_POST['data']);
+        $cache_data = cache_get($client_data['query_uuid'])->data;
+        //conflicting fields will be overwritten with client data (page, sort, conditions, etc..)
+        $data = array_merge($cache_data, $client_data);
+    }
+
+    //To take advantage of drupal paging and sorting, set GET params manually
+    $_GET['sort'] = $data['sort'];
+    $_GET['order'] = $data['order'];
+    $_GET['page'] = $data['page'];
+
+    $query = cache_get($data['query_uuid'])->data['query'];
+    foreach ($data['conditions'] as $condition){
+        $query->condition($condition['field'],$condition['value'],$condition['operator']);
+    }
+    $query = $query->extend('PagerDefault');
+    $query->orderBy($data['order'],$data['sort']);
+    $query->limit($data['limit']);
+    $rows = $query->execute();
+
+    $header = array();
+    $table_rows = array();
+    $headers_built = false;
+    $index = 0;
+
+    foreach($rows as $row){
+        $vars = get_object_vars($row);
+        if(!$headers_built){
+            //build header
+            $headers = array_keys($vars);
+            foreach($headers as $head){
+                $header[] = array('data' => $head,'field' => $head);
+            }
+            $headers_built = true;
+        }
+        $t_row = array('data' => array());
+        $cell_index = 0;
+        //Add cells
+        foreach($vars as $cell){
+            $cell = array('data'=>$cell,'rel'=>array($header[$cell_index]['data']));
+            //Add delete condition value to row if applicable
+            if(isset($data['delete']) && $data['delete'] == $header[$cell_index]['data']){
+                $t_row['delete_cond'] = $cell['data'];
+            }
+            //Add update condition value to row if applicable
+            if(isset($data['update_cond']) && $data['update_cond'] == $header[$cell_index]['data']){
+                $t_row['update_cond'] = $cell['data'];
+            }
+            //add edit button if cell is editable
+            if(isset($data['editable']) && in_array($header[$cell_index]['data'],$data['editable'])){
+                $cell['data'] .= '<a href="#" class="tapi-edit"></a>';
+            }
+            //Allow custom alteration of each cell via callback (perhaps make it link...etc)
+            if(isset($data['cell_callback'])){
+                $function = $data['cell_callback'];
+                $function($header[$cell_index]['data'], $cell, $index);
+            }
+            $t_row['data'][] = $cell;
+            $cell_index++;
+        }
+        //Add delete button if enabled
+        if(isset($data['delete'])){
+            $t_row['data'][] = array('data' => '<a href="#" class="tapi-delete"></a>');
+        }
+        $table_rows[] = $t_row;
+        $index++;
+    }
+
+    //If inserting is allowed, add one row at the bottom
+    if(isset($data['insert']) && $data['insert'] == true){
+        //If table is empty, build headers for insert fields
+        if(!$headers_built){
+            $header = array();
+            $headers = array_keys($query->getFields());
+            foreach($headers as $head){
+                $header[] = array('data' => $head,'field' => $head);
+            }
+        }
+        $t_row = array();
+        $fields = array_keys($query->getFields());
+        foreach($headers as $cell_index => $textfield){
+            //only allow inserting actual fields (skip addExpression fields)
+            if(in_array($textfield, $fields)){
+                $cell = array(
+                    'data'=>
+                    '<input type="textfield" class="tapi-insert" rel="'.$textfield.'"></input>');
+            }
+            else{
+                //we still have to render input to preserve widths, but we hide it
+                $cell = array('data'=>'<input type = "textfield" class="tapi-hidden" disabled></input>');
+            }
+            $t_row['data'][] = $cell;
+        }
+        $t_row['data'][] = array('data' => '<a href="#" class="tapi-insert-btn"></a>');
+        $table_rows[] = $t_row;
+    }
+
+    $form['#prefix'] = '<div id = "tapi-table-container">';
+    $form['#suffix'] = '</div>';
+    $form['order_table'] = array(
+        '#theme' => 'table',
+        '#header' => $header,
+        '#rows' => $table_rows,
+        '#sticky' => TRUE,
+        '#empty' => t("No records found"),
+        '#prefix' => theme('pager', array('tags' => array())),
+        '#suffix' => theme('pager', array('tags' => array())),
+    );
+    //pass some values as hidden fields to browser
+    $allowed = array('query_uuid','sort','order','page','conditions');
+    foreach($allowed as $field){
+        $val = $data[$field];
+        if(is_array($val)){
+            $val = drupal_json_encode($val);
+        }
+        $form[$field] = array(
+            '#name' => 'tapi_'.$field,
+            '#type' => 'hidden',
+            '#value' => $val,
+        );
+    }
+    $table = drupal_render($form);
+    return $table;
+}
+
+function table_api_config(){
+    return "Nothing to configure...";
+}
