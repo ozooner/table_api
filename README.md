@@ -1,6 +1,6 @@
 Table API
 =========
-**See demo: ** [http://tapi-ozooner.rhcloud.com/](http://tapi-ozooner.rhcloud.com/)
+**See demo:** [http://tapi-ozooner.rhcloud.com/](http://tapi-ozooner.rhcloud.com/)
 What can it do?
 ---------------
 This module allows developers to expose drupal-style queries (**db_select**) as a pageable-sortable ajax table with as little coding as possible:
