@@ -100,7 +100,7 @@ function table_api_demo_form($form, &$form_state){
 function table_api_demo_cell_alter($column, &$cell, $index){
     $options = array('attributes' => array('class' => 'btn btn-info'));
     if($column == 'link'){
-        $cell['data'] = l($cell['data'], 'go/to/'.$cell['data'], $options );
+        $cell['data'] = l($cell['data'], 'https://duckduckgo.com/?q='.$cell['data'], $options );
     }
 }
 
@@ -111,7 +111,7 @@ function table_api_demo_rebuild_data($form, &$form_state){
 }
 
 function table_api_demo_sample_data(){
-    db_truncate('tapi_demo');
+    db_truncate('tapi_demo')->execute();
     $sample_data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
     $sample_data = explode(' ', $sample_data);
     $insert = db_insert('tapi_demo')
