@@ -53,7 +53,6 @@ function table_api_demo_form($form, &$form_state){
     //we add format field again, but this time we call it 'link'
     //and use a callback hook to turn the cell data into a hyperlink
     $query->addExpression('field1', 'link');
-    db_set_active();
     
     $data = array();
     //mandatory fields
