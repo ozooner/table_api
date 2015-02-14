@@ -3,7 +3,7 @@ jQuery(document).ready(
 
         /* intercept anchor tags in pager and header and fetch via ajax instead */
         $(document).on(
-            "click", "#tapi-table-container .pager li a, #tapi-table-container th a", function(e){ 
+            "click", "#tapi-table-container .pager li a, #tapi-table-container th a", function(e){
                 var url = jQuery.url($(this).attr('href'));
                 var params = {
                     page : url.param('page'),
@@ -19,7 +19,7 @@ jQuery(document).ready(
 
         /* edit button click handler, add input tag with save button */
         $(document).on(
-            "click", "#tapi-table-container .tapi-edit", function(e){ 
+            "click", "#tapi-table-container .tapi-edit", function(e){
                 e.preventDefault();
                 var element = $(this).parent();
                 var content = element.html();
@@ -27,14 +27,14 @@ jQuery(document).ready(
                 //remove the button before inserting content to input
                 var cut = content.indexOf('<a href="#" class="tapi-edit"></a>');
                 content = content.substring(0,cut);
-                $("<input>")                  
+                $("<input>")
                 .attr('class','tapi-edit-input')
                 .attr('value', content)
                 .attr('type', 'text')
                 .prependTo(element)
                 .focus();
 
-                $("<a>")                  
+                $("<a>")
                 .attr('class','tapi-save')
                 .attr('href','#')
                 .appendTo(element);
@@ -43,7 +43,7 @@ jQuery(document).ready(
 
         /* Inline edit event handler, submit changes and remove input tag */
         $(document).on(
-            "click", "#tapi-table-container .tapi-save", function(e){ 
+            "click", "#tapi-table-container .tapi-save", function(e){
                 element = $(this).parent();
                 //take content from sibling input tag
                 content = $(this).prevAll("input:first").val();
@@ -72,7 +72,7 @@ jQuery(document).ready(
                                 //replace input field with new content
                                 element.html(content);
                                 //re-create edit button
-                                $("<a>")                  
+                                $("<a>")
                                 .attr('class','tapi-edit')
                                 .attr('href','#')
                                 .appendTo(element);
@@ -89,7 +89,7 @@ jQuery(document).ready(
 
         /* Delete event handler */
         $(document).on(
-            "click", "#tapi-table-container .tapi-delete", function(e){ 
+            "click", "#tapi-table-container .tapi-delete", function(e){
                 if (!confirm(Drupal.t("Are you sure you want to delete?"))) {
                     return false;
                 }
@@ -129,7 +129,7 @@ jQuery(document).ready(
 
         /* Insert button click handler */
         $(document).on(
-            "click", "#tapi-table-container .tapi-insert-btn", function(e){ 
+            "click", "#tapi-table-container .tapi-insert-btn", function(e){
                 params = {
                     query_uuid : $('input[name=tapi_query_uuid]').val(),
                 };
@@ -174,7 +174,7 @@ jQuery(document).ready(
 //------------------window scope functions-----------------
 
 /**
- * Clears all conditions from the table, 
+ * Clears all conditions from the table,
  * used to apply different conditions or remove filters
  */
 function clearConditions(){
@@ -183,7 +183,7 @@ function clearConditions(){
 }
 /**
  * Adds one condition to the table query
- * 
+ *
  * @param field - on which the condition applies e.g 'id'
  * @param value - value it must have e.g '23'
  * @param operator - operator e.g '>'

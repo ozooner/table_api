@@ -2,8 +2,9 @@
 /**
  * Implements hook_help()
  */
-function table_api_help($path, $arg){
-    if($path == 'admin/config/table_api'){
+function table_api_help($path, $arg)
+{
+    if($path == 'admin/config/table_api') {
         $help = 'Table API enables developers to easily expose underlaying database tables. ';
         $help .= 'By passing drupal-style db_query to table api renderer function, it will generate ';
         $help .= 'html code for pageable/sortable table. In addition it enables editing/deleting/inserting ';
@@ -16,7 +17,8 @@ function table_api_help($path, $arg){
 /**
  * Implements hook_permission().
  */
-function table_api_permission() {
+function table_api_permission() 
+{
     return array(
         'tapi view' => array(
             'title' => t('Enables viewing data in Table API tables (protects AJAX callback)'),
@@ -36,9 +38,12 @@ function table_api_permission() {
 /**
  * Implements hook_menu()
  */
-function table_api_menu() {
+function table_api_menu() 
+{
     $items = array(
-        /** Menu item */
+        /**
+ * Menu item 
+*/
         'admin/config/table_api' =>    array(
             'title'              =>    'Table API info',
             'page callback'      =>    'table_api_config',
@@ -85,11 +90,12 @@ function table_api_menu() {
  * a request to here is made instead
  * @return new table HTML based on sorting/filtering parameters
  */
-function table_api_render($data = null){
+function table_api_render($data = null)
+{
     $module_path = drupal_get_path('module', 'table_api');
     drupal_add_css($module_path . '/css/table_api.css');
 
-    if($data != null){
+    if($data != null) {
         //Store the query in a cache instad and keep the reference to cid
         $query = $data['query'];
         $uuid = md5($query->__toString());
@@ -111,10 +117,10 @@ function table_api_render($data = null){
 
     $query = cache_get($data['query_uuid'])->data['query'];
     foreach ($data['conditions'] as $condition){
-        $query->condition($condition['field'],$condition['value'],$condition['operator']);
+        $query->condition($condition['field'], $condition['value'], $condition['operator']);
     }
     $query = $query->extend('PagerDefault');
-    $query->orderBy($data['order'],$data['sort']);
+    $query->orderBy($data['order'], $data['sort']);
     $query->limit($data['limit']);
     $rows = $query->execute();
 
@@ -125,7 +131,7 @@ function table_api_render($data = null){
 
     foreach($rows as $row){
         $vars = get_object_vars($row);
-        if(!$headers_built){
+        if(!$headers_built) {
             //build header
             $headers = array_keys($vars);
             foreach($headers as $head){
@@ -139,19 +145,19 @@ function table_api_render($data = null){
         foreach($vars as $cell){
             $cell = array('data'=>$cell,'rel'=>array($header[$cell_index]['data']));
             //Add delete condition value to row if applicable
-            if(isset($data['delete']) && $data['delete'] == $header[$cell_index]['data']){
+            if(isset($data['delete']) && $data['delete'] == $header[$cell_index]['data']) {
                 $t_row['delete_cond'] = $cell['data'];
             }
             //Add update condition value to row if applicable
-            if(isset($data['update_cond']) && $data['update_cond'] == $header[$cell_index]['data']){
+            if(isset($data['update_cond']) && $data['update_cond'] == $header[$cell_index]['data']) {
                 $t_row['update_cond'] = $cell['data'];
             }
             //add edit button if cell is editable
-            if(isset($data['editable']) && in_array($header[$cell_index]['data'],$data['editable'])){
+            if(isset($data['editable']) && in_array($header[$cell_index]['data'], $data['editable'])) {
                 $cell['data'] .= '<a href="#" class="tapi-edit"></a>';
             }
             //Allow custom alteration of each cell via callback (perhaps make it link...etc)
-            if(isset($data['cell_callback'])){
+            if(isset($data['cell_callback'])) {
                 $function = $data['cell_callback'];
                 $function($header[$cell_index]['data'], $cell, $index);
             }
@@ -159,7 +165,7 @@ function table_api_render($data = null){
             $cell_index++;
         }
         //Add delete button if enabled
-        if(isset($data['delete'])){
+        if(isset($data['delete'])) {
             $t_row['data'][] = array('data' => '<a href="#" class="tapi-delete"></a>');
         }
         $table_rows[] = $t_row;
@@ -167,9 +173,9 @@ function table_api_render($data = null){
     }
 
     //If inserting is allowed, add one row at the bottom
-    if(isset($data['insert']) && $data['insert'] == true){
+    if(isset($data['insert']) && $data['insert'] == true) {
         //If table is empty, build headers for insert fields
-        if(!$headers_built){
+        if(!$headers_built) {
             $header = array();
             $headers = array_keys($query->getFields());
             foreach($headers as $head){
@@ -180,7 +186,7 @@ function table_api_render($data = null){
         $fields = array_keys($query->getFields());
         foreach($headers as $cell_index => $textfield){
             //only allow inserting actual fields (skip addExpression fields)
-            if(in_array($textfield, $fields)){
+            if(in_array($textfield, $fields)) {
                 $cell = array(
                     'data'=>
                     '<input type="textfield" class="tapi-insert" rel="'.$textfield.'"></input>');
@@ -201,7 +207,7 @@ function table_api_render($data = null){
         '#theme' => 'table',
         '#header' => $header,
         '#rows' => $table_rows,
-        '#sticky' => TRUE,
+        '#sticky' => true,
         '#empty' => t("No records found"),
         '#prefix' => theme('pager', array('tags' => array())),
         '#suffix' => theme('pager', array('tags' => array())),
@@ -210,7 +216,7 @@ function table_api_render($data = null){
     $allowed = array('query_uuid','sort','order','page','conditions');
     foreach($allowed as $field){
         $val = $data[$field];
-        if(is_array($val)){
+        if(is_array($val)) {
             $val = drupal_json_encode($val);
         }
         $form[$field] = array(
@@ -223,6 +229,7 @@ function table_api_render($data = null){
     return $table;
 }
 
-function table_api_config(){
+function table_api_config()
+{
     return "Nothing to configure...";
 }

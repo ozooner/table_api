@@ -2,7 +2,8 @@
 /**
  * Implements hook_menu()
  */
-function table_api_demo_menu(){
+function table_api_demo_menu()
+{
     $items = array(
         'tapi/demo'            =>    array(
             'title'              =>    'Table API demo',
@@ -18,7 +19,8 @@ function table_api_demo_menu(){
 /**
  * Table API demo form
  */
-function table_api_demo_form($form, &$form_state){
+function table_api_demo_form($form, &$form_state)
+{
     //This JS file hooks into tapi add condition function to provide filtering
     $module_path = drupal_get_path('module', 'table_api_demo');
     drupal_add_js($module_path . '/js/table_api_demo.js');
@@ -26,13 +28,13 @@ function table_api_demo_form($form, &$form_state){
     $form['description'] = array(
         '#type' => 'item',
         '#title' => 'Table API (tapi) Demo',
-        '#description' => 'This demo aims to show different applications for tapi: viewing, paging, sorting, editing, deleting, inserting and searching. Although this demo comprises of all features, it is possible to only implement certain features. Requires jQuery 1.7+'
+        '#description' => t('This demo aims to show different applications for tapi: viewing, paging, sorting, editing, deleting, inserting and searching. Although this demo comprises of all features, it is possible to only implement certain features. Requires jQuery 1.7+')
     );
 
     $form['filter_field1'] = array(
         '#title' => 'Field1',
         '#type' => 'textfield',
-        '#description' => 'Filter results by field1 (WHERE field1 LIKE)'
+        '#description' => t('Filter results by field1 (WHERE field1 LIKE')
     );
 
     $form['tapi_search'] = array(
@@ -49,7 +51,7 @@ function table_api_demo_form($form, &$form_state){
     //construct query we want to display
     db_set_active();
     $query = db_select('tapi_demo')
-        ->fields('tapi_demo',array('id','field1', 'field2', 'field3'));
+        ->fields('tapi_demo', array('id','field1', 'field2', 'field3'));
     //we add format field again, but this time we call it 'link'
     //and use a callback hook to turn the cell data into a hyperlink
     $query->addExpression('field1', 'link');
@@ -66,7 +68,6 @@ function table_api_demo_form($form, &$form_state){
     $data['editable'] = array('field1', 'field2'); //enables editing following fields
     $data['update_cond'] = 'id'; //update condition field (required when updating is enabled)
     $data['insert'] = true; //enable insertion of new rows
-
     //Cell callbacks must be implemented in .module files, see table_api.module for
     //tapi_demo_cell_alter($column, &$cell, $index) implementation
     $data['cell_callback'] = 'table_api_demo_cell_alter';
@@ -79,7 +80,7 @@ function table_api_demo_form($form, &$form_state){
     $form['insert_description'] = array(
         '#type' => 'item',
         '#title' => 'Inserting data',
-        '#description' => "'id'(auto_increment) and 'field2'(blank) have default values, therefore there is no need to fill in these fields when inserting data. 'link' is not an actual database field (field1 as link), therefore it is missing an input for insertion."
+        '#description' => t("'id'(auto_increment) and 'field2'(blank) have default values, therefore there is no need to fill in these fields when inserting data. 'link' is not an actual database field (field1 as link), therefore it is missing an input for insertion.")
     );
 
     return $form;
@@ -93,23 +94,26 @@ function table_api_demo_form($form, &$form_state){
  * Registering a callback looks like this:
  * $data['cell_callback'] = 'tapi_demo_cell_alter';
  * @param string $column - column name
- * @param array $cell - cell with all properties
- * @param int $index - row index
+ * @param array  $cell   - cell with all properties
+ * @param int    $index  - row index
  */
-function table_api_demo_cell_alter($column, &$cell, $index){
+function table_api_demo_cell_alter($column, &$cell, $index)
+{
     $options = array('attributes' => array('class' => 'btn btn-info'));
-    if($column == 'link'){
-        $cell['data'] = l($cell['data'], 'https://duckduckgo.com/?q='.$cell['data'], $options );
+    if($column == 'link') {
+        $cell['data'] = l($cell['data'], 'https://duckduckgo.com/?q='.$cell['data'], $options);
     }
 }
 
 
-function table_api_demo_rebuild_data($form, &$form_state){
+function table_api_demo_rebuild_data($form, &$form_state)
+{
     table_api_demo_sample_data();
-    drupal_set_message('Demo data re-populated');
+    drupal_set_message(t('Demo data re-populated'));
 }
 
-function table_api_demo_sample_data(){
+function table_api_demo_sample_data()
+{
     db_truncate('tapi_demo')->execute();
     $sample_data = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
     $sample_data = explode(' ', $sample_data);

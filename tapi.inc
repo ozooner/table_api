@@ -1,9 +1,5 @@
 <?php
 /**
- * @author Sander Sink (ozooner@msn.com)
- */
-
-/**
  * Callback function that renders the table with supplied parameters
  */
 function table_api_callback()
@@ -135,7 +131,7 @@ function table_api_insert()
         $table = reset(array_keys($tables));
         $database = table_api_resolve_database($query);
         db_set_active($database);
-        $new_row = db_insert($table)
+        db_insert($table)
         ->fields($data)
         ->execute();
         $result['status'] = 'success';
