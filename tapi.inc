@@ -13,7 +13,7 @@ function table_api_callback()
 function table_api_delete()
 {
     $data = drupal_json_decode($_POST['data']);
-    //Make sure we have a condition
+    // Make sure we have a condition.
     if(!isset($data['where_value']) || $data['where_value'] == '') {
         $result['status'] = 'error';
         $result['message'] = t('Where value was not passed properly');
@@ -60,7 +60,7 @@ function table_api_delete()
 function table_api_update()
 {
     $data = drupal_json_decode($_POST['data']);
-    //prevent accidentally updating entire table
+    // Prevent accidentally updating entire table.
     if(!isset($data['where_value']) || $data['where_value'] == '') {
         $result['status'] = 'error';
         $result['message'] = t('Where value was not passed properly');
@@ -111,7 +111,7 @@ function table_api_update()
 function table_api_insert()
 {
     $data = drupal_json_decode($_POST['data']);
-    //prevent accidentally updating entire table
+    // Prevent accidentally updating entire table.
     try{
         $cache_data = cache_get($data['query_uuid'])->data;
         $query = $cache_data['query'];
@@ -122,7 +122,7 @@ function table_api_insert()
             throw new Exception('Inserting to this table is not allowed');
         }
         unset($data['query_uuid']);
-        //remove empty values so we can use DB defaults
+        // Remove empty values so we can use DB defaults.
         $data = array_filter($data);
         $tables = $query->getTables();
         if(count($tables) > 1) {

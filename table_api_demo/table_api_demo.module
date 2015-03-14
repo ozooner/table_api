@@ -21,7 +21,7 @@ function table_api_demo_menu()
  */
 function table_api_demo_form($form, &$form_state)
 {
-    //This JS file hooks into tapi add condition function to provide filtering
+    // This JS file hooks into tapi add condition function to provide filtering.
     $module_path = drupal_get_path('module', 'table_api_demo');
     drupal_add_js($module_path . '/js/table_api_demo.js');
 
@@ -48,28 +48,36 @@ function table_api_demo_form($form, &$form_state)
         '#submit' => array('table_api_demo_rebuild_data')
     );
     
-    //construct query we want to display
+    // Construct query we want to display.
     db_set_active();
     $query = db_select('tapi_demo')
         ->fields('tapi_demo', array('id','field1', 'field2', 'field3'));
-    //we add format field again, but this time we call it 'link'
-    //and use a callback hook to turn the cell data into a hyperlink
+    // We add format field again, but this time we call it 'link',
+    // And use a callback hook to turn the cell data into a hyperlink.
     $query->addExpression('field1', 'link');
     
     $data = array();
-    //mandatory fields
+    // Mandatory fields.
     $data['query'] = $query;
-    $data['limit'] = 20; //Limit per page
-    $data['sort'] = 'asc'; //Default sort order
-    $data['order'] = 'id'; //Default sort column
-    $data['page'] = 0; //Default start page
-    //optional fields
-    $data['delete'] = 'id'; //enables deletion with id as delete condition
-    $data['editable'] = array('field1', 'field2'); //enables editing following fields
-    $data['update_cond'] = 'id'; //update condition field (required when updating is enabled)
-    $data['insert'] = true; //enable insertion of new rows
-    //Cell callbacks must be implemented in .module files, see table_api.module for
-    //tapi_demo_cell_alter($column, &$cell, $index) implementation
+    // Limit per page.
+    $data['limit'] = 20;
+    // Default sort order.
+    $data['sort'] = 'asc';
+    // Default sort column.
+    $data['order'] = 'id';
+    // Default start page.
+    $data['page'] = 0;
+    // Optional fields.
+    // Enables deletion with id as delete condition.
+    $data['delete'] = 'id';
+    // Enables editing following fields.
+    $data['editable'] = array('field1', 'field2');
+    // Update condition field (required when updating is enabled).
+    $data['update_cond'] = 'id'; 
+    // Enable insertion of new rows.
+    $data['insert'] = true; 
+    // Cell callbacks must be implemented in .module files,
+    // See table_api.module for tapi_demo_cell_alter($column, &$cell, $index) implementation.
     $data['cell_callback'] = 'table_api_demo_cell_alter';
 
     $form['table_data'] = array(

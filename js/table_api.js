@@ -180,7 +180,6 @@ jQuery(document).ready(
 );
 
 // ------------------Window scope functions-----------------.
-
 /**
  * Clears all conditions from the table, used to apply different conditions or remove filters.
  */

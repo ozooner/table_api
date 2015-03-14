@@ -94,7 +94,7 @@ function table_api_render($data = null)
     drupal_add_js($module_path . '/js/table_api.js');
 
     if($data != null) {
-        //Store the query in a cache instad and keep the reference to cid
+        // Store the query in a cache instad and keep the reference to cid.
         $query = $data['query'];
         $uuid = md5($query->__toString());
         $data['conditions'] = array();
@@ -104,11 +104,11 @@ function table_api_render($data = null)
     else{
         $client_data = drupal_json_decode($_POST['data']);
         $cache_data = cache_get($client_data['query_uuid'])->data;
-        //conflicting fields will be overwritten with client data (page, sort, conditions, etc..)
+        // Conflicting fields will be overwritten with client data (page, sort, conditions, etc..).
         $data = array_merge($cache_data, $client_data);
     }
 
-    //To take advantage of drupal paging and sorting, set GET params manually
+    // To take advantage of drupal paging and sorting, set GET params manually.
     $_GET['sort'] = $data['sort'];
     $_GET['order'] = $data['order'];
     $_GET['page'] = $data['page'];
@@ -139,22 +139,22 @@ function table_api_render($data = null)
         }
         $t_row = array('data' => array());
         $cell_index = 0;
-        //Add cells
+        // Add cells.
         foreach($vars as $cell){
             $cell = array('data'=>$cell,'rel'=>array($header[$cell_index]['data']));
-            //Add delete condition value to row if applicable
+            // Add delete condition value to row if applicable.
             if(isset($data['delete']) && $data['delete'] == $header[$cell_index]['data']) {
                 $t_row['delete_cond'] = $cell['data'];
             }
-            //Add update condition value to row if applicable
+            // Add update condition value to row if applicable.
             if(isset($data['update_cond']) && $data['update_cond'] == $header[$cell_index]['data']) {
                 $t_row['update_cond'] = $cell['data'];
             }
-            //add edit button if cell is editable
+            // Add edit button if cell is editable.
             if(isset($data['editable']) && in_array($header[$cell_index]['data'], $data['editable'])) {
                 $cell['data'] .= '<a href="#" class="tapi-edit"></a>';
             }
-            //Allow custom alteration of each cell via callback (perhaps make it link...etc)
+            // Allow custom alteration of each cell via callback (perhaps make it link...etc).
             if(isset($data['cell_callback'])) {
                 $function = $data['cell_callback'];
                 $function($header[$cell_index]['data'], $cell, $index);
@@ -162,7 +162,7 @@ function table_api_render($data = null)
             $t_row['data'][] = $cell;
             $cell_index++;
         }
-        //Add delete button if enabled
+        // Add delete button if enabled.
         if(isset($data['delete'])) {
             $t_row['data'][] = array('data' => '<a href="#" class="tapi-delete"></a>');
         }
@@ -170,9 +170,9 @@ function table_api_render($data = null)
         $index++;
     }
 
-    //If inserting is allowed, add one row at the bottom
+    // If inserting is allowed, add one row at the bottom.
     if(isset($data['insert']) && $data['insert'] == true) {
-        //If table is empty, build headers for insert fields
+        // If table is empty, build headers for insert fields.
         if(!$headers_built) {
             $header = array();
             $headers = array_keys($query->getFields());
@@ -183,14 +183,14 @@ function table_api_render($data = null)
         $t_row = array();
         $fields = array_keys($query->getFields());
         foreach($headers as $cell_index => $textfield){
-            //only allow inserting actual fields (skip addExpression fields)
+            // Only allow inserting actual fields (skip addExpression fields).
             if(in_array($textfield, $fields)) {
                 $cell = array(
                     'data'=>
                     '<input type="textfield" class="tapi-insert" rel="'.$textfield.'"></input>');
             }
             else{
-                //we still have to render input to preserve widths, but we hide it
+                // We still have to render input to preserve widths, but we hide it.
                 $cell = array('data'=>'<input type = "textfield" class="tapi-hidden" disabled></input>');
             }
             $t_row['data'][] = $cell;
@@ -210,7 +210,7 @@ function table_api_render($data = null)
         '#prefix' => theme('pager', array('tags' => array())),
         '#suffix' => theme('pager', array('tags' => array())),
     );
-    //pass some values as hidden fields to browser
+    // Pass some values as hidden fields to browser.
     $allowed = array('query_uuid','sort','order','page','conditions');
     foreach($allowed as $field){
         $val = $data[$field];
