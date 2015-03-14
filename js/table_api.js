@@ -1,14 +1,22 @@
 jQuery(document).ready(
     function($) {
-
         /* intercept anchor tags in pager and header and fetch via ajax instead */
         $(document).on(
             "click", "#tapi-table-container .pager li a, #tapi-table-container th a", function(e){
-                var url = jQuery.url($(this).attr('href'));
+
+                // Parses GET query parameters and returns value for requested name.
+                function getQueryParameterByName(query, name) {
+                    var match = RegExp('[?&]' + name + '=([^&]*)').exec(query);
+                    return match && decodeURIComponent(match[1].replace(/\+/g, ' '));
+                }
+
+                var url = $(this).attr('href');
+                var query = url.substr(url.indexOf('?'));
+
                 var params = {
-                    page : url.param('page'),
-                    sort : url.param('sort'),
-                    order : url.param('order'),
+                    page : getQueryParameterByName(query, 'page'),
+                    sort : getQueryParameterByName(query, 'sort'),
+                    order : getQueryParameterByName(query, 'order'),
                     conditions :JSON.parse(jQuery('input[name=tapi_conditions]').val()),
                     query_uuid : $('input[name=tapi_query_uuid]').val(),
                 };
@@ -24,7 +32,7 @@ jQuery(document).ready(
                 var element = $(this).parent();
                 var content = element.html();
                 element.html("");
-                //remove the button before inserting content to input
+                // Remove the button before inserting content to input.
                 var cut = content.indexOf('<a href="#" class="tapi-edit"></a>');
                 content = content.substring(0,cut);
                 $("<input>")
@@ -45,7 +53,7 @@ jQuery(document).ready(
         $(document).on(
             "click", "#tapi-table-container .tapi-save", function(e){
                 element = $(this).parent();
-                //take content from sibling input tag
+                // Take content from sibling input tag.
                 content = $(this).prevAll("input:first").val();
                 params = {
                     update_value : content,
@@ -69,9 +77,9 @@ jQuery(document).ready(
                         success : function(data, status, request) {
                             data = JSON.parse(data);
                             if(data.status == 'success') {
-                                //replace input field with new content
+                                // Replace input field with new content.
                                 element.html(content);
-                                //re-create edit button
+                                // Re-create edit button.
                                 $("<a>")
                                 .attr('class','tapi-edit')
                                 .attr('href','#')
@@ -171,16 +179,16 @@ jQuery(document).ready(
     }
 );
 
-//------------------window scope functions-----------------
+// ------------------Window scope functions-----------------.
 
 /**
- * Clears all conditions from the table,
- * used to apply different conditions or remove filters
+ * Clears all conditions from the table, used to apply different conditions or remove filters.
  */
 function clearConditions(){
     conditions = [];
     jQuery('input[name=tapi_conditions]').val(JSON.stringify(conditions));
 }
+
 /**
  * Adds one condition to the table query
  *

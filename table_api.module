@@ -41,9 +41,6 @@ function table_api_permission()
 function table_api_menu() 
 {
     $items = array(
-        /**
- * Menu item 
-*/
         'admin/config/table_api' =>    array(
             'title'              =>    'Table API info',
             'page callback'      =>    'table_api_config',
@@ -94,6 +91,7 @@ function table_api_render($data = null)
 {
     $module_path = drupal_get_path('module', 'table_api');
     drupal_add_css($module_path . '/css/table_api.css');
+    drupal_add_js($module_path . '/js/table_api.js');
 
     if($data != null) {
         //Store the query in a cache instad and keep the reference to cid
