@@ -190,7 +190,7 @@ function clearConditions(){
 }
 
 /**
- * Adds one condition to the table query
+ * Adds one condition to the table query.
  *
  * @param field - on which the condition applies e.g 'id'
  * @param value - value it must have e.g '23'
